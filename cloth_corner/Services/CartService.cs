@@ -138,6 +138,16 @@ namespace cloth_corner.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task PurchaseCartAsync(string userId)
+        {
+            var cart = await GetCartByUserIdAsync(userId);
+            if (cart != null)
+            {
+                cart.IsPurchased = true;
+                _context.Cart.Update(cart);
+                await _context.SaveChangesAsync();
+            }
+        }
 
     }
 }

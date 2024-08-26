@@ -8,12 +8,25 @@
 
 @if (Model == null || Model.CartDetails.Count == 0)
 {
-    <p>Your cart is empty.
+    <p>
+        Your cart is empty.
         <a asp-action="Index" asp-controller="Home">Continue Shopping</a>
     </p>
 }
 else
 {
+    <div class="row justify-content-start">
+        <div class="col-md-1">
+            <form asp-action="Purchase" method="post">
+                <button type="submit" class="btn btn-primary">Purchase</button>
+            </form>
+        </div> 
+        <div class="col-md-2">
+            <form asp-action="ClearCart" method="post">
+                <button type="submit" class="btn btn-warning">Empty Cart</button>
+            </form>
+        </div> 
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -29,9 +42,17 @@ else
             {
                 <tr>
                     <td>@item.Products?.ProductName</td>
-                    <td>@item.Quantity</td>
+                    <td>
+                        <form asp-controller="Cart" asp-action="UpdateCart" method="post" class="d-inline">
+                            <input type="hidden" name="cartDetailsId" value="@item.CartDetailsId" />
+                            <button type="button" class="btn btn-secondary" onclick="updateQuantity(@item.CartDetailsId, @item.Quantity - 1)">-</button>
+                            <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control d-inline w-auto" onchange="updateQuantity(@item.CartDetailsId, this.value)" />
+                            <button type="button" class="btn btn-secondary" onclick="updateQuantity(@item.CartDetailsId, @item.Quantity + 1)">+</button>
+                        </form>
+                    </td>
                     <td>@item.Price.ToString("C")</td>
-                    <td>@{
+                    <td>
+                        @{
                             var total_price = item.Price * item.Quantity;
                         }
                         @total_price.ToString("C")
@@ -47,8 +68,29 @@ else
         </tbody>
     </table>
     <h3>Total: @Model.TotalPrice.ToString("C")</h3>
-    <a asp-action="Checkout" class="btn btn-primary">Checkout</a>
-    <form asp-action="ClearCart" method="post" class="mt-3">
-        <button type="submit" class="btn btn-warning">Empty Cart</button>
-    </form>
+}
+
+@section Scripts {
+    <script>
+        function updateQuantity(cartDetailsId, quantity) {
+            if (quantity < 1) {
+                quantity = 1;
+            }
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/Cart/UpdateCart';
+            var inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'cartDetailsId';
+            inputId.value = cartDetailsId;
+            var inputQuantity = document.createElement('input');
+            inputQuantity.type = 'hidden';
+            inputQuantity.name = 'quantity';
+            inputQuantity.value = quantity;
+            form.appendChild(inputId);
+            form.appendChild(inputQuantity);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 }

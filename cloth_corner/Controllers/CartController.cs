@@ -52,6 +52,10 @@ namespace cloth_corner.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCart(int cartDetailsId, int quantity)
         {
+            if (quantity < 1)
+            {
+                quantity = 1;
+            }
             await _cartService.UpdateCartAsync(cartDetailsId, quantity);
             return RedirectToAction("Index");
         }
@@ -67,6 +71,13 @@ namespace cloth_corner.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             await _cartService.ClearCartAsync(userId);
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> Purchase()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _cartService.PurchaseCartAsync(userId);
             return RedirectToAction("Index");
         }
 

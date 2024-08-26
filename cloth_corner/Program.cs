@@ -45,6 +45,8 @@ builder.Services.AddControllersWithViews(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CustomerService>();
 
 var app = builder.Build();
 

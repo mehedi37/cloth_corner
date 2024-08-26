@@ -1,0 +1,36 @@
+﻿@model IEnumerable<cloth_corner.Models.Products>
+
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <a href="@Url.Action("Details", "Home", new { id = product.ProductId })">
+                    <img src="@product.ProductImage" class="card-img-top" width="70" height="250" alt="@product.ProductName">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="@Url.Action("Details", "Home", new { id = product.ProductId })">@product.ProductName</a>
+                    </h5>
+                    <p class="card-text">
+                        @{
+                            var maxLength = 100; // Set the maximum length for the description
+                            var description = product.ProductDescription;
+                            if (description.Length > maxLength)
+                            {
+                                description = description.Substring(0, maxLength) + "...";
+                            }
+                        }
+                        @description
+                    </p>
+                    <p class="card-text"><strong>@product.ProductPrice.ToString("C")</strong></p>
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                        <input type="hidden" name="productId" value="@product.ProductId" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

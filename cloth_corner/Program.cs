@@ -1,6 +1,9 @@
 using cloth_corner.Areas.Identity.Data;
 using cloth_corner.Data;
+using cloth_corner.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AppDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AppDbContextConnection' not found.");
@@ -31,6 +34,18 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// Add services to the container with global authorization policy
+builder.Services.AddControllersWithViews(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
+
+// Add services to the container.
+builder.Services.AddScoped<CartService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,7 +61,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",

@@ -17,5 +17,6 @@ namespace cloth_corner.Models
         public required string UserId { get; set; }
         [DeleteBehavior(DeleteBehavior.Cascade)]
         public AppUser? AppUser { get; set; }
+        public required int Stock { get; set; }
     }
 }

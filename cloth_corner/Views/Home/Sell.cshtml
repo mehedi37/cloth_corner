@@ -24,6 +24,7 @@
                         <tr>
                             <th>Image</th>
                             <th>Item Name</th>
+                            <th>Item Stock</th>
                             <th>Price</th>
                             <th></th>
                         </tr>
@@ -34,6 +35,16 @@
                             <tr>
                                 <td><img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 100px;" /></td>
                                 <td>@item.ProductName</td>
+                                <td>
+                                    @if (item.Stock > 0)
+                                    {
+                                        <span class="text-dark">@item.Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Out of Stock</span>
+                                    }
+                                </td>
                                 <td>@item.ProductPrice.ToString("C")</td>
                                 <td>
                                     <a asp-action="EditItem" asp-route-id="@item.ProductId" class="btn btn-primary">Edit</a>

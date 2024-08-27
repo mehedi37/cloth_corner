@@ -13,14 +13,22 @@
             <h1>@Model.Product.ProductName</h1>
             <p>@Model.Product.ProductDescription</p>
             <p><strong>Price: </strong>@Model.Product.ProductPrice.ToString("C")</p>
-            <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                <input type="hidden" name="productId" value="@Model.Product.ProductId" />
-                <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input type="number" name="quantity" class="form-control" value="1" min="1" />
-                </div>
-                <button type="submit" class="btn btn-primary mt-2">Add to Cart</button>
-            </form>
+            @if (Model.Product.Stock == 0)
+            {
+                <p class="text-danger"><strong>Stock: </strong>Stock Out</p>
+            }
+            else
+            {
+                <p><strong>Stock: </strong>@Model.Product.Stock</p>
+                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                    <input type="hidden" name="productId" value="@Model.Product.ProductId" />
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" name="quantity" class="form-control" value="1" min="1" />
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Add to Cart</button>
+                </form>
+            }
         </div>
     </div>
     <hr>

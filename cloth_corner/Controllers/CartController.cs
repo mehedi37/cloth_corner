@@ -12,11 +12,13 @@ namespace cloth_corner.Controllers
     {
         private readonly AppDbContext _context;
         private readonly CartService _cartService;
+        private readonly ProductService _productService;
 
-        public CartController(AppDbContext context, CartService cartService)
+        public CartController(AppDbContext context, CartService cartService, ProductService productService)
         {
             _context = context;
             _cartService = cartService;
+            _productService = productService;
         }
 
         public async Task<IActionResult> Index()
@@ -45,6 +47,13 @@ namespace cloth_corner.Controllers
         public async Task<IActionResult> AddToCart(int productId, int quantity)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var product = await _context.Products.FindAsync(productId);
+
+            if (product == null || product.Stock < quantity)
+            {
+                return BadRequest("Insufficient stock or product not found.");
+            }
+
             await _cartService.AddToCartAsync(userId, productId, quantity);
             return RedirectToAction("Index");
         }
@@ -56,6 +65,18 @@ namespace cloth_corner.Controllers
             {
                 quantity = 1;
             }
+
+            // Retrieve the product from the database
+            var cartDetail = await _context.CartDetails.FindAsync(cartDetailsId);
+            var product = await _context.Products.FindAsync(cartDetail.ProductId);
+
+            // Check if the quantity is greater than the product's stock
+            if (quantity > product.Stock)
+            {
+                // Set the quantity to the product's stock
+                quantity = product.Stock;
+            }
+
             await _cartService.UpdateCartAsync(cartDetailsId, quantity);
             return RedirectToAction("Index");
         }
@@ -77,6 +98,25 @@ namespace cloth_corner.Controllers
         public async Task<IActionResult> Purchase()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cart = await _cartService.GetCartByUserIdAsync(userId);
+
+            if (cart == null || !cart.CartDetails.Any())
+            {
+                return BadRequest("Your cart is empty.");
+            }
+
+            foreach (var cartDetail in cart.CartDetails)
+            {
+                var product = await _context.Products.FindAsync(cartDetail.ProductId);
+                if (product == null || product.Stock < cartDetail.Quantity)
+                {
+                    return BadRequest("Insufficient stock for product: " + product?.ProductName);
+                }
+
+                product.Stock -= cartDetail.Quantity;
+                await _productService.UpdateItemAsync(product);
+            }
+
             await _cartService.PurchaseCartAsync(userId);
             return RedirectToAction("Index");
         }

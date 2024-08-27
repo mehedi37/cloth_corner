@@ -107,7 +107,8 @@ namespace cloth_corner.Controllers
                 ProductDescription = string.Empty,
                 ProductImage = string.Empty,
                 ProductPrice = 0.0M,
-                UserId = userId
+                UserId = userId,
+                Stock = 0
             });
         }
 
